@@ -1,4 +1,4 @@
-package main
+package gocloakecho
 
 // Authenticate holds authentication information
 type Authenticate struct {

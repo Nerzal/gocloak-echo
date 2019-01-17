@@ -1,4 +1,4 @@
-package main
+package gocloakecho
 
 import (
 	"net/http"
