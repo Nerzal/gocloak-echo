@@ -4,7 +4,7 @@ import (
 	"github.com/Nerzal/gocloak"
 )
 
-// AuthenticationHandler is used to authenticate witht he api
+// AuthenticationHandler is used to authenticate with the api
 type AuthenticationHandler interface {
 	AuthenticateClient(Authenticate) (*gocloak.JWT, error)
 	AuthenticateUser(Authenticate) (*gocloak.JWT, error)
