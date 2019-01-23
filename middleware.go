@@ -2,9 +2,9 @@ package gocloakecho
 
 import (
 	"net/http"
+	"strings"
 
-	"github.com/Nerzal/gocloak"
-	"gitlab.com/fino/schufa/api/pkg/models"
+	gocloak "github.com/Nerzal/gocloak"
 
 	"github.com/labstack/echo"
 )
@@ -41,12 +41,19 @@ func (auth *authenticationMiddleWare) CheckToken(next echo.HandlerFunc) echo.Han
 			})
 		}
 
-		err := auth.gocloak.ValidateToken(token, auth.realm)
+		token = strings.Replace(token, "Bearer ", "", 1)
+		decodedToken, _, err := auth.gocloak.DecodeAccessTokenCustomClaims(token, auth.realm)
 		if err != nil {
-			return c.JSON(http.StatusUnauthorized, models.APIError{
+			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
 				Message: "Invalid or malformed token",
-				Detail:  "The token may be expired or malformed. Try to authorize again",
+			})
+		}
+
+		if !decodedToken.Valid {
+			return c.JSON(http.StatusForbidden, gocloak.APIError{
+				Code:    http.StatusForbidden,
+				Message: "Invalid Token",
 			})
 		}
 
@@ -56,7 +63,29 @@ func (auth *authenticationMiddleWare) CheckToken(next echo.HandlerFunc) echo.Han
 
 func (auth *authenticationMiddleWare) CheckScope(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		// token := c.Request().Header.Get("Authorization")
+		token := c.Request().Header.Get("Authorization")
+		if token == "" {
+			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
+				Code:    403,
+				Message: "Authorization header missing",
+			})
+		}
+
+		token = strings.Replace(token, "Bearer ", "", 1)
+		_, claims, err := auth.gocloak.DecodeAccessTokenCustomClaims(token, auth.realm)
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
+				Code:    403,
+				Message: "Invalid or malformed token",
+			})
+		}
+
+		if !strings.Contains(claims.Scope, auth.allowedScope) {
+			return c.JSON(http.StatusForbidden, gocloak.APIError{
+				Code:    http.StatusForbidden,
+				Message: "Insufficient permissions to access the requested resource",
+			})
+		}
 
 		return next(c)
 	}
