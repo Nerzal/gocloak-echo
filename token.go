@@ -11,5 +11,6 @@ type Authenticate struct {
 // Refresh is used to refresh the JWT
 type Refresh struct {
 	ClientID     string `json:"clientID"`
+	ClientSecret string `json:"clientSecret"`
 	RefreshToken string `json:"refreshToken"`
 }

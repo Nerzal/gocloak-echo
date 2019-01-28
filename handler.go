@@ -67,7 +67,7 @@ func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate)
 }
 
 func (handler *authenticationHandler) RefreshToken(requestData Refresh) (*gocloak.JWT, error) {
-	response, err := handler.gocloak.RefreshToken(requestData.RefreshToken, requestData.ClientID, handler.realm)
+	response, err := handler.gocloak.RefreshToken(requestData.RefreshToken, requestData.ClientID, requestData.ClientSecret, handler.realm)
 	if err != nil {
 		return nil, gocloak.APIError{
 			Code:    403,
