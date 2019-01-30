@@ -18,19 +18,23 @@ type AuthenticationMiddleWare interface {
 }
 
 type authenticationMiddleWare struct {
-	gocloak          gocloak.GoCloak
-	realm            string
-	allowedScope     string
-	customHeaderName *string
+	gocloak           gocloak.GoCloak
+	realm             string
+	adminClientID     string
+	adminClientSecret string
+	allowedScope      string
+	customHeaderName  *string
 }
 
 // NewAuthenticationMiddleWare instantiates a new AuthenticationMiddleWare
-func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, allowedScope string, customHeaderName *string) AuthenticationMiddleWare {
+func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, allowedScope, adminClientID, adminClientSecret string, customHeaderName *string) AuthenticationMiddleWare {
 	return &authenticationMiddleWare{
-		gocloak:          gocloak,
-		realm:            realm,
-		allowedScope:     allowedScope,
-		customHeaderName: customHeaderName,
+		gocloak:           gocloak,
+		realm:             realm,
+		allowedScope:      allowedScope,
+		customHeaderName:  customHeaderName,
+		adminClientID:     adminClientID,
+		adminClientSecret: adminClientSecret,
 	}
 }
 
@@ -66,7 +70,11 @@ func (auth *authenticationMiddleWare) CheckTokenCustomHeader(next echo.HandlerFu
 
 func (auth *authenticationMiddleWare) stripBearerAndCheckToken(accessToken string, realm string) (*jwt.Token, error) {
 	accessToken = strings.Replace(accessToken, "Bearer ", "", 1)
-	decodedToken, _, err := auth.gocloak.DecodeAccessTokenCustomClaims(accessToken, realm)
+	token, err := auth.gocloak.LoginClient(auth.adminClientID, auth.adminClientSecret, realm)
+	if err != nil {
+		return nil, err
+	}
+	decodedToken, _, err := auth.gocloak.DecodeAccessTokenCustomClaims(accessToken, token.AccessToken, realm)
 	return decodedToken, err
 }
 
@@ -81,8 +89,16 @@ func (auth *authenticationMiddleWare) CheckToken(next echo.HandlerFunc) echo.Han
 			})
 		}
 
+		adminToken, err := auth.gocloak.LoginClient(auth.adminClientID, auth.adminClientSecret, auth.realm)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gocloak.APIError{
+				Code:    403,
+				Message: "Authentication failed",
+			})
+		}
+
 		token = strings.Replace(token, "Bearer ", "", 1)
-		decodedToken, _, err := auth.gocloak.DecodeAccessTokenCustomClaims(token, auth.realm)
+		decodedToken, _, err := auth.gocloak.DecodeAccessTokenCustomClaims(token, adminToken.AccessToken, auth.realm)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
@@ -111,8 +127,16 @@ func (auth *authenticationMiddleWare) CheckScope(next echo.HandlerFunc) echo.Han
 			})
 		}
 
+		adminToken, err := auth.gocloak.LoginClient(auth.adminClientID, auth.adminClientSecret, auth.realm)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gocloak.APIError{
+				Code:    403,
+				Message: "Authentication failed",
+			})
+		}
+
 		token = strings.Replace(token, "Bearer ", "", 1)
-		_, claims, err := auth.gocloak.DecodeAccessTokenCustomClaims(token, auth.realm)
+		_, claims, err := auth.gocloak.DecodeAccessTokenCustomClaims(token, adminToken.AccessToken, auth.realm)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
