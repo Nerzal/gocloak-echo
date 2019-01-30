@@ -14,3 +14,15 @@ type Refresh struct {
 	ClientSecret string `json:"clientSecret"`
 	RefreshToken string `json:"refreshToken"`
 }
+
+// JWT is a JWT
+type JWT struct {
+	AccessToken      string `json:"accessToken"`
+	ExpiresIn        int    `json:"expiresIn"`
+	RefreshExpiresIn int    `json:"refreshExpiresIn"`
+	RefreshToken     string `json:"refreshToken"`
+	TokenType        string `json:"tokenType"`
+	NotBeforePolicy  int    `json:"notBeforePolicy"`
+	SessionState     string `json:"sessionState"`
+	Scope            string `json:"scope"`
+}

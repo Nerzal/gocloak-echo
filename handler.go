@@ -1,14 +1,16 @@
 package gocloakecho
 
 import (
+	"errors"
+
 	"github.com/Nerzal/gocloak"
 )
 
 // AuthenticationHandler is used to authenticate with the api
 type AuthenticationHandler interface {
-	AuthenticateClient(Authenticate) (*gocloak.JWT, error)
-	AuthenticateUser(Authenticate) (*gocloak.JWT, error)
-	RefreshToken(Refresh) (*gocloak.JWT, error)
+	AuthenticateClient(Authenticate) (*JWT, error)
+	AuthenticateUser(Authenticate) (*JWT, error)
+	RefreshToken(Refresh) (*JWT, error)
 }
 
 type authenticationHandler struct {
@@ -24,7 +26,7 @@ func NewAuthenticationHandler(gocloak gocloak.GoCloak, realm string) Authenticat
 	}
 }
 
-func (handler *authenticationHandler) AuthenticateClient(requestData Authenticate) (*gocloak.JWT, error) {
+func (handler *authenticationHandler) AuthenticateClient(requestData Authenticate) (*JWT, error) {
 	response, err := handler.gocloak.LoginClient(requestData.ClientID, requestData.ClientSecret, handler.realm)
 	if err != nil {
 		return nil, gocloak.APIError{
@@ -33,7 +35,11 @@ func (handler *authenticationHandler) AuthenticateClient(requestData Authenticat
 		}
 	}
 
-	return &gocloak.JWT{
+	if response.AccessToken == "" {
+		return nil, errors.New("Authentication failed")
+	}
+
+	return &JWT{
 		AccessToken:      response.AccessToken,
 		ExpiresIn:        response.ExpiresIn,
 		NotBeforePolicy:  response.NotBeforePolicy,
@@ -45,7 +51,7 @@ func (handler *authenticationHandler) AuthenticateClient(requestData Authenticat
 	}, nil
 }
 
-func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate) (*gocloak.JWT, error) {
+func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate) (*JWT, error) {
 	response, err := handler.gocloak.Login(requestData.ClientID, requestData.ClientSecret, handler.realm, *requestData.UserName, *requestData.Password)
 	if err != nil {
 		return nil, gocloak.APIError{
@@ -54,7 +60,11 @@ func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate)
 		}
 	}
 
-	return &gocloak.JWT{
+	if response.AccessToken == "" {
+		return nil, errors.New("Authentication failed")
+	}
+
+	return &JWT{
 		AccessToken:      response.AccessToken,
 		ExpiresIn:        response.ExpiresIn,
 		NotBeforePolicy:  response.NotBeforePolicy,
@@ -66,7 +76,7 @@ func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate)
 	}, nil
 }
 
-func (handler *authenticationHandler) RefreshToken(requestData Refresh) (*gocloak.JWT, error) {
+func (handler *authenticationHandler) RefreshToken(requestData Refresh) (*JWT, error) {
 	response, err := handler.gocloak.RefreshToken(requestData.RefreshToken, requestData.ClientID, requestData.ClientSecret, handler.realm)
 	if err != nil {
 		return nil, gocloak.APIError{
@@ -75,7 +85,11 @@ func (handler *authenticationHandler) RefreshToken(requestData Refresh) (*gocloa
 		}
 	}
 
-	return &gocloak.JWT{
+	if response.AccessToken == "" {
+		return nil, errors.New("Authentication failed")
+	}
+
+	return &JWT{
 		AccessToken:      response.AccessToken,
 		ExpiresIn:        response.ExpiresIn,
 		NotBeforePolicy:  response.NotBeforePolicy,
