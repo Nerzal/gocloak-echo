@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	gocloak "github.com/Nerzal/gocloak"
+	jwt "github.com/dgrijalva/jwt-go"
 
 	"github.com/labstack/echo"
 )
@@ -44,8 +45,7 @@ func (auth *authenticationMiddleWare) CheckTokenCustomHeader(next echo.HandlerFu
 			})
 		}
 
-		token = strings.Replace(token, "Bearer ", "", 1)
-		decodedToken, _, err := auth.gocloak.DecodeAccessTokenCustomClaims(token, auth.realm)
+		decodedToken, err := auth.stripBearerAndCheckToken(token, auth.realm)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
@@ -62,6 +62,12 @@ func (auth *authenticationMiddleWare) CheckTokenCustomHeader(next echo.HandlerFu
 
 		return next(c)
 	}
+}
+
+func (auth *authenticationMiddleWare) stripBearerAndCheckToken(accessToken string, realm string) (*jwt.Token, error) {
+	accessToken = strings.Replace(accessToken, "Bearer ", "", 1)
+	decodedToken, _, err := auth.gocloak.DecodeAccessTokenCustomClaims(accessToken, realm)
+	return decodedToken, err
 }
 
 // CheckToken used to verify authorization tokens
