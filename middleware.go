@@ -53,7 +53,7 @@ func (auth *authenticationMiddleWare) CheckTokenCustomHeader(next echo.HandlerFu
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
-				Message: "Invalid or malformed token",
+				Message: "Invalid or malformed token: "+ err.Error(),
 			})
 		}
 
