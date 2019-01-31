@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	gocloak "github.com/Nerzal/gocloak"
+	"github.com/Nerzal/gocloak/pkg/jwx"
 	jwt "github.com/dgrijalva/jwt-go"
 
 	"github.com/labstack/echo"
@@ -53,7 +54,7 @@ func (auth *authenticationMiddleWare) CheckTokenCustomHeader(next echo.HandlerFu
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
-				Message: "Invalid or malformed token: "+ err.Error(),
+				Message: "Invalid or malformed token: " + err.Error(),
 			})
 		}
 
@@ -74,7 +75,7 @@ func (auth *authenticationMiddleWare) stripBearerAndCheckToken(accessToken strin
 	if err != nil {
 		return nil, err
 	}
-	decodedToken, _, err := auth.gocloak.DecodeAccessTokenCustomClaims(accessToken, token.AccessToken, realm)
+	decodedToken, _, err := auth.gocloak.DecodeAccessToken(accessToken, token.AccessToken, realm)
 	return decodedToken, err
 }
 
@@ -98,7 +99,7 @@ func (auth *authenticationMiddleWare) CheckToken(next echo.HandlerFunc) echo.Han
 		}
 
 		token = strings.Replace(token, "Bearer ", "", 1)
-		decodedToken, _, err := auth.gocloak.DecodeAccessTokenCustomClaims(token, adminToken.AccessToken, auth.realm)
+		decodedToken, _, err := auth.gocloak.DecodeAccessToken(token, adminToken.AccessToken, auth.realm)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
@@ -136,7 +137,8 @@ func (auth *authenticationMiddleWare) CheckScope(next echo.HandlerFunc) echo.Han
 		}
 
 		token = strings.Replace(token, "Bearer ", "", 1)
-		_, claims, err := auth.gocloak.DecodeAccessTokenCustomClaims(token, adminToken.AccessToken, auth.realm)
+		claims := &jwx.Claims{}
+		_, err = auth.gocloak.DecodeAccessTokenCustomClaims(token, adminToken.AccessToken, auth.realm, claims)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
