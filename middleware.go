@@ -14,28 +14,30 @@ import (
 // AuthenticationMiddleWare is used to validate the JWT
 type AuthenticationMiddleWare interface {
 	CheckToken(next echo.HandlerFunc) echo.HandlerFunc
+
+	// The following 2 methods need higher permissions of the client in the realm
 	CheckTokenCustomHeader(next echo.HandlerFunc) echo.HandlerFunc
 	CheckScope(next echo.HandlerFunc) echo.HandlerFunc
 }
 
 type authenticationMiddleWare struct {
-	gocloak           gocloak.GoCloak
-	realm             string
-	adminClientID     string
-	adminClientSecret string
-	allowedScope      string
-	customHeaderName  *string
+	gocloak          gocloak.GoCloak
+	realm            string
+	clientID         string
+	clientSecret     string
+	allowedScope     string
+	customHeaderName *string
 }
 
 // NewAuthenticationMiddleWare instantiates a new AuthenticationMiddleWare
 func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, allowedScope, adminClientID, adminClientSecret string, customHeaderName *string) AuthenticationMiddleWare {
 	return &authenticationMiddleWare{
-		gocloak:           gocloak,
-		realm:             realm,
-		allowedScope:      allowedScope,
-		customHeaderName:  customHeaderName,
-		adminClientID:     adminClientID,
-		adminClientSecret: adminClientSecret,
+		gocloak:          gocloak,
+		realm:            realm,
+		allowedScope:     allowedScope,
+		customHeaderName: customHeaderName,
+		clientID:         adminClientID,
+		clientSecret:     adminClientSecret,
 	}
 }
 
@@ -71,7 +73,7 @@ func (auth *authenticationMiddleWare) CheckTokenCustomHeader(next echo.HandlerFu
 
 func (auth *authenticationMiddleWare) stripBearerAndCheckToken(accessToken string, realm string) (*jwt.Token, error) {
 	accessToken = strings.Replace(accessToken, "Bearer ", "", 1)
-	token, err := auth.gocloak.LoginClient(auth.adminClientID, auth.adminClientSecret, realm)
+	token, err := auth.gocloak.LoginClient(auth.clientID, auth.clientSecret, realm)
 	if err != nil {
 		return nil, err
 	}
@@ -90,27 +92,19 @@ func (auth *authenticationMiddleWare) CheckToken(next echo.HandlerFunc) echo.Han
 			})
 		}
 
-		adminToken, err := auth.gocloak.LoginClient(auth.adminClientID, auth.adminClientSecret, auth.realm)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gocloak.APIError{
-				Code:    403,
-				Message: "Authentication failed",
-			})
-		}
-
 		token = strings.Replace(token, "Bearer ", "", 1)
-		decodedToken, _, err := auth.gocloak.DecodeAccessToken(token, adminToken.AccessToken, auth.realm)
-		if err != nil {
+		result, err := auth.gocloak.RetrospectToken(token, auth.clientID, auth.clientSecret, auth.realm)
+		if token == "" {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
-				Message: "Invalid or malformed token",
+				Message: err.Error(),
 			})
 		}
 
-		if !decodedToken.Valid {
-			return c.JSON(http.StatusForbidden, gocloak.APIError{
-				Code:    http.StatusForbidden,
-				Message: "Invalid Token",
+		if !result.Active {
+			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
+				Code:    403,
+				Message: "Invalid or expired Token",
 			})
 		}
 
@@ -128,7 +122,7 @@ func (auth *authenticationMiddleWare) CheckScope(next echo.HandlerFunc) echo.Han
 			})
 		}
 
-		adminToken, err := auth.gocloak.LoginClient(auth.adminClientID, auth.adminClientSecret, auth.realm)
+		adminToken, err := auth.gocloak.LoginClient(auth.clientID, auth.clientSecret, auth.realm)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
