@@ -29,15 +29,13 @@ type authenticationMiddleWare struct {
 	customHeaderName *string
 }
 
-// NewAuthenticationMiddleWare instantiates a new AuthenticationMiddleWare
-func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, allowedScope, adminClientID, adminClientSecret string, customHeaderName *string) AuthenticationMiddleWare {
+// NewAuthenticationMiddleWare instantiates a new AuthenticationMiddleWare.
+func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, allowedScope string, customHeaderName *string) AuthenticationMiddleWare {
 	return &authenticationMiddleWare{
 		gocloak:          gocloak,
 		realm:            realm,
 		allowedScope:     allowedScope,
 		customHeaderName: customHeaderName,
-		clientID:         adminClientID,
-		clientSecret:     adminClientSecret,
 	}
 }
 
@@ -73,11 +71,8 @@ func (auth *authenticationMiddleWare) CheckTokenCustomHeader(next echo.HandlerFu
 
 func (auth *authenticationMiddleWare) stripBearerAndCheckToken(accessToken string, realm string) (*jwt.Token, error) {
 	accessToken = strings.Replace(accessToken, "Bearer ", "", 1)
-	token, err := auth.gocloak.LoginClient(auth.clientID, auth.clientSecret, realm)
-	if err != nil {
-		return nil, err
-	}
-	decodedToken, _, err := auth.gocloak.DecodeAccessToken(accessToken, token.AccessToken, realm)
+
+	decodedToken, _, err := auth.gocloak.DecodeAccessToken(accessToken, realm)
 	return decodedToken, err
 }
 
@@ -122,17 +117,9 @@ func (auth *authenticationMiddleWare) CheckScope(next echo.HandlerFunc) echo.Han
 			})
 		}
 
-		adminToken, err := auth.gocloak.LoginClient(auth.clientID, auth.clientSecret, auth.realm)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gocloak.APIError{
-				Code:    403,
-				Message: "Authentication failed",
-			})
-		}
-
 		token = strings.Replace(token, "Bearer ", "", 1)
 		claims := &jwx.Claims{}
-		_, err = auth.gocloak.DecodeAccessTokenCustomClaims(token, adminToken.AccessToken, auth.realm, claims)
+		_, err := auth.gocloak.DecodeAccessTokenCustomClaims(token, auth.realm, claims)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
