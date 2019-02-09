@@ -30,12 +30,14 @@ type authenticationMiddleWare struct {
 }
 
 // NewAuthenticationMiddleWare instantiates a new AuthenticationMiddleWare.
-func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, allowedScope string, customHeaderName *string) AuthenticationMiddleWare {
+func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, clientID, clientSecret, allowedScope string, customHeaderName *string) AuthenticationMiddleWare {
 	return &authenticationMiddleWare{
 		gocloak:          gocloak,
 		realm:            realm,
 		allowedScope:     allowedScope,
 		customHeaderName: customHeaderName,
+		clientID:         clientID,
+		clientSecret:     clientSecret,
 	}
 }
 
