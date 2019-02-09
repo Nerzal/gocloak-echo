@@ -89,6 +89,13 @@ func (auth *authenticationMiddleWare) CheckToken(next echo.HandlerFunc) echo.Han
 
 		token = strings.Replace(token, "Bearer ", "", 1)
 		result, err := auth.gocloak.RetrospectToken(token, auth.clientID, auth.clientSecret, auth.realm)
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
+				Code:    403,
+				Message: "Invalid or malformed token:" + err.Error(),
+			})
+		}
+
 		if token == "" {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
