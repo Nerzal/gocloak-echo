@@ -78,6 +78,21 @@ func (auth *authenticationMiddleWare) stripBearerAndCheckToken(accessToken strin
 	return decodedToken, err
 }
 
+func (auth *authenticationMiddleWare) DecodeAndValidateToken(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		token := c.Request().Header.Get("Authorization")
+		if token == "" {
+			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
+				Code:    403,
+				Message: "Authorization header missing",
+			})
+		}
+
+		return next(c)
+	}
+
+}
+
 // CheckToken used to verify authorization tokens
 func (auth *authenticationMiddleWare) CheckToken(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -106,6 +121,22 @@ func (auth *authenticationMiddleWare) CheckToken(next echo.HandlerFunc) echo.Han
 		}
 
 		if !result.Active {
+			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
+				Code:    403,
+				Message: "Invalid or expired Token",
+			})
+		}
+
+		token = strings.Replace(token, "Bearer ", "", 1)
+		decodedToken, _, err := auth.gocloak.DecodeAccessToken(token, auth.realm)
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
+				Code:    403,
+				Message: "Invalid or expired Token",
+			})
+		}
+
+		if !decodedToken.Valid {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
 				Message: "Invalid or expired Token",
