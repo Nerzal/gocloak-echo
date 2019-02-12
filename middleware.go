@@ -13,6 +13,8 @@ import (
 
 // AuthenticationMiddleWare is used to validate the JWT
 type AuthenticationMiddleWare interface {
+	DecodeAndValidateToken(next echo.HandlerFunc) echo.HandlerFunc
+	
 	CheckToken(next echo.HandlerFunc) echo.HandlerFunc
 
 	// The following 2 methods need higher permissions of the client in the realm
