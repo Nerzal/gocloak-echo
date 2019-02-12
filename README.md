@@ -1,6 +1,8 @@
 # gocloak-echo
 Keycloak handler &amp; middleware for echo
 
+This project is still WiP and the interfaces might change pretty often
+
 Use this together with the keycloak client [gocloak](https://github.com/Nerzal/gocloak)
 
 ```go
