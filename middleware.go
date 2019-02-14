@@ -30,10 +30,11 @@ type authenticationMiddleWare struct {
 	clientSecret     string
 	allowedScope     string
 	customHeaderName *string
+	realmHeaderName  *string
 }
 
 // NewAuthenticationMiddleWare instantiates a new AuthenticationMiddleWare.
-func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, clientID, clientSecret, allowedScope string, customHeaderName *string) AuthenticationMiddleWare {
+func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, clientID, clientSecret, allowedScope string, customHeaderName *string, realmHeaderName *string) AuthenticationMiddleWare {
 	return &authenticationMiddleWare{
 		gocloak:          gocloak,
 		realm:            realm,
@@ -41,6 +42,7 @@ func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, clientID, clien
 		customHeaderName: customHeaderName,
 		clientID:         clientID,
 		clientSecret:     clientSecret,
+		realmHeaderName:  realmHeaderName,
 	}
 }
 
@@ -48,14 +50,20 @@ func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, clientID, clien
 func (auth *authenticationMiddleWare) CheckTokenCustomHeader(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		token := c.Request().Header.Get(*auth.customHeaderName)
-		if token == "" {
+
+		realm := auth.realm
+		if auth.realmHeaderName != nil {
+			realm = c.Request().Header.Get(*auth.realmHeaderName)
+		}
+
+		if token == "" || realm == "" {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
 				Message: "Authorization header missing",
 			})
 		}
 
-		decodedToken, err := auth.stripBearerAndCheckToken(token, auth.realm)
+		decodedToken, err := auth.stripBearerAndCheckToken(token, realm)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
