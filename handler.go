@@ -15,19 +15,17 @@ type AuthenticationHandler interface {
 
 type authenticationHandler struct {
 	gocloak gocloak.GoCloak
-	realm   string
 }
 
 // NewAuthenticationHandler instantiates a new AuthenticationHandler
-func NewAuthenticationHandler(gocloak gocloak.GoCloak, realm string) AuthenticationHandler {
+func NewAuthenticationHandler(gocloak gocloak.GoCloak) AuthenticationHandler {
 	return &authenticationHandler{
 		gocloak: gocloak,
-		realm:   realm,
 	}
 }
 
 func (handler *authenticationHandler) AuthenticateClient(requestData Authenticate) (*JWT, error) {
-	response, err := handler.gocloak.LoginClient(requestData.ClientID, requestData.ClientSecret, handler.realm)
+	response, err := handler.gocloak.LoginClient(requestData.ClientID, requestData.ClientSecret, requestData.Realm)
 	if err != nil {
 		return nil, gocloak.APIError{
 			Code:    403,
@@ -52,7 +50,7 @@ func (handler *authenticationHandler) AuthenticateClient(requestData Authenticat
 }
 
 func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate) (*JWT, error) {
-	response, err := handler.gocloak.Login(requestData.ClientID, requestData.ClientSecret, handler.realm, *requestData.UserName, *requestData.Password)
+	response, err := handler.gocloak.Login(requestData.ClientID, requestData.ClientSecret, requestData.Realm, *requestData.UserName, *requestData.Password)
 	if err != nil {
 		return nil, gocloak.APIError{
 			Code:    403,
@@ -77,7 +75,7 @@ func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate)
 }
 
 func (handler *authenticationHandler) RefreshToken(requestData Refresh) (*JWT, error) {
-	response, err := handler.gocloak.RefreshToken(requestData.RefreshToken, requestData.ClientID, requestData.ClientSecret, handler.realm)
+	response, err := handler.gocloak.RefreshToken(requestData.RefreshToken, requestData.ClientID, requestData.ClientSecret, requestData.Realm)
 	if err != nil {
 		return nil, gocloak.APIError{
 			Code:    403,
