@@ -29,9 +29,8 @@ func NewAuthenticationHandler(gocloak gocloak.GoCloak, realm *string) Authentica
 }
 
 func (handler *authenticationHandler) AuthenticateClient(requestData Authenticate) (*JWT, error) {
-	var realm string
-	realm = requestData.Realm
-	if requestData.Realm == "" {
+	realm := requestData.Realm
+	if realm == "" {
 		realm = *handler.realm
 	}
 
@@ -60,9 +59,8 @@ func (handler *authenticationHandler) AuthenticateClient(requestData Authenticat
 }
 
 func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate) (*JWT, error) {
-	var realm string
-	realm = requestData.Realm
-	if requestData.Realm == "" {
+	realm := requestData.Realm
+	if realm == "" {
 		realm = *handler.realm
 	}
 
@@ -91,6 +89,11 @@ func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate)
 }
 
 func (handler *authenticationHandler) RefreshToken(requestData Refresh) (*JWT, error) {
+	realm := requestData.Realm
+	if realm == "" {
+		realm = *handler.realm
+	}
+
 	response, err := handler.gocloak.RefreshToken(requestData.RefreshToken, requestData.ClientID, requestData.ClientSecret, requestData.Realm)
 	if err != nil {
 		return nil, gocloak.APIError{
