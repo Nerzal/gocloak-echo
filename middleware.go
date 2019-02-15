@@ -138,22 +138,6 @@ func (auth *authenticationMiddleWare) CheckToken(next echo.HandlerFunc) echo.Han
 			})
 		}
 
-		token = strings.Replace(token, "Bearer ", "", 1)
-		decodedToken, _, err := auth.gocloak.DecodeAccessToken(token, auth.realm)
-		if err != nil {
-			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
-				Code:    403,
-				Message: "Invalid or expired Token",
-			})
-		}
-
-		if !decodedToken.Valid {
-			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
-				Code:    403,
-				Message: "Invalid or expired Token",
-			})
-		}
-
 		return next(c)
 	}
 }
