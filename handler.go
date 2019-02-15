@@ -30,6 +30,7 @@ func NewAuthenticationHandler(gocloak gocloak.GoCloak, realm *string) Authentica
 
 func (handler *authenticationHandler) AuthenticateClient(requestData Authenticate) (*JWT, error) {
 	var realm string
+	realm = requestData.Realm
 	if requestData.Realm == "" {
 		realm = *handler.realm
 	}
@@ -60,6 +61,7 @@ func (handler *authenticationHandler) AuthenticateClient(requestData Authenticat
 
 func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate) (*JWT, error) {
 	var realm string
+	realm = requestData.Realm
 	if requestData.Realm == "" {
 		realm = *handler.realm
 	}
