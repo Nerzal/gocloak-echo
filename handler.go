@@ -2,6 +2,7 @@ package gocloakecho
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/Nerzal/gocloak"
 )
@@ -15,17 +16,25 @@ type AuthenticationHandler interface {
 
 type authenticationHandler struct {
 	gocloak gocloak.GoCloak
+	realm   *string
 }
 
 // NewAuthenticationHandler instantiates a new AuthenticationHandler
-func NewAuthenticationHandler(gocloak gocloak.GoCloak) AuthenticationHandler {
+// Setting realm is optional
+func NewAuthenticationHandler(gocloak gocloak.GoCloak, realm *string) AuthenticationHandler {
 	return &authenticationHandler{
 		gocloak: gocloak,
+		realm:   realm,
 	}
 }
 
 func (handler *authenticationHandler) AuthenticateClient(requestData Authenticate) (*JWT, error) {
-	response, err := handler.gocloak.LoginClient(requestData.ClientID, requestData.ClientSecret, requestData.Realm)
+	var realm string
+	if requestData.Realm == "" {
+		realm = *handler.realm
+	}
+
+	response, err := handler.gocloak.LoginClient(requestData.ClientID, requestData.ClientSecret, realm)
 	if err != nil {
 		return nil, gocloak.APIError{
 			Code:    403,
@@ -50,10 +59,15 @@ func (handler *authenticationHandler) AuthenticateClient(requestData Authenticat
 }
 
 func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate) (*JWT, error) {
-	response, err := handler.gocloak.Login(requestData.ClientID, requestData.ClientSecret, requestData.Realm, *requestData.UserName, *requestData.Password)
+	var realm string
+	if requestData.Realm == "" {
+		realm = *handler.realm
+	}
+
+	response, err := handler.gocloak.Login(requestData.ClientID, requestData.ClientSecret, realm, *requestData.UserName, *requestData.Password)
 	if err != nil {
 		return nil, gocloak.APIError{
-			Code:    403,
+			Code:    http.StatusForbidden,
 			Message: err.Error(),
 		}
 	}
@@ -78,7 +92,7 @@ func (handler *authenticationHandler) RefreshToken(requestData Refresh) (*JWT, e
 	response, err := handler.gocloak.RefreshToken(requestData.RefreshToken, requestData.ClientID, requestData.ClientSecret, requestData.Realm)
 	if err != nil {
 		return nil, gocloak.APIError{
-			Code:    403,
+			Code:    http.StatusForbidden,
 			Message: "Failed to refresh token",
 		}
 	}

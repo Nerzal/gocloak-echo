@@ -4,8 +4,8 @@ package gocloakecho
 type Authenticate struct {
 	ClientID     string  `json:"clientID"`
 	ClientSecret string  `json:"clientSecret"`
-	Realm        string  `json:"realm"`
-	Scope        string  `json:"scope"`
+	Realm        string  `json:"realm,omitempty"`
+	Scope        string  `json:"scope,omitempty"`
 	UserName     *string `json:"username,omitempty"`
 	Password     *string `json:"password,omitempty"`
 }
@@ -14,8 +14,8 @@ type Authenticate struct {
 type Refresh struct {
 	ClientID     string `json:"clientID"`
 	ClientSecret string `json:"clientSecret"`
-	Realm        string `json:"realm"`
-	RefreshToken string `json:"refreshToken"`
+	Realm        string `json:"realm,omitempty"`
+	RefreshToken string `json:"refreshToken,omitempty"`
 }
 
 // JWT is a JWT
