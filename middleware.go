@@ -50,6 +50,9 @@ func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, clientID, clien
 func (auth *authenticationMiddleWare) CheckTokenCustomHeader(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		token := c.Request().Header.Get(*auth.customHeaderName)
+		if token == "" {
+			token = c.Request().Header.Get("Authorization")
+		}
 
 		realm := auth.realm
 		if auth.realmHeaderName != nil {
