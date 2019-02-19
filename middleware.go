@@ -49,7 +49,11 @@ func NewAuthenticationMiddleWare(gocloak gocloak.GoCloak, realm, clientID, clien
 // CheckTokenCustomHeader used to verify authorization tokens
 func (auth *authenticationMiddleWare) CheckTokenCustomHeader(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		token := c.Request().Header.Get(*auth.customHeaderName)
+		token := ""
+		if auth.customHeaderName != nil {
+			token = c.Request().Header.Get(*auth.customHeaderName)
+		}
+
 		if token == "" {
 			token = c.Request().Header.Get("Authorization")
 		}
@@ -94,10 +98,15 @@ func (auth *authenticationMiddleWare) stripBearerAndCheckToken(accessToken strin
 
 func (auth *authenticationMiddleWare) DecodeAndValidateToken(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		token := c.Request().Header.Get(*auth.customHeaderName)
+		token := ""
+		if auth.customHeaderName != nil {
+			token = c.Request().Header.Get(*auth.customHeaderName)
+		}
+
 		if token == "" {
 			token = c.Request().Header.Get("Authorization")
 		}
+
 		if token == "" {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
@@ -113,7 +122,11 @@ func (auth *authenticationMiddleWare) DecodeAndValidateToken(next echo.HandlerFu
 // CheckToken used to verify authorization tokens
 func (auth *authenticationMiddleWare) CheckToken(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		token := c.Request().Header.Get(*auth.customHeaderName)
+		token := ""
+		if auth.customHeaderName != nil {
+			token = c.Request().Header.Get(*auth.customHeaderName)
+		}
+
 		if token == "" {
 			token = c.Request().Header.Get("Authorization")
 		}
@@ -154,10 +167,15 @@ func (auth *authenticationMiddleWare) CheckToken(next echo.HandlerFunc) echo.Han
 
 func (auth *authenticationMiddleWare) CheckScope(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		token := c.Request().Header.Get(*auth.customHeaderName)
+		token := ""
+		if auth.customHeaderName != nil {
+			token = c.Request().Header.Get(*auth.customHeaderName)
+		}
+
 		if token == "" {
 			token = c.Request().Header.Get("Authorization")
 		}
+
 		if token == "" {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
