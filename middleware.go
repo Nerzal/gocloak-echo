@@ -11,6 +11,10 @@ import (
 	"github.com/labstack/echo"
 )
 
+const (
+	KeyRealm = "realm"
+)
+
 // AuthenticationMiddleWare is used to validate the JWT
 type AuthenticationMiddleWare interface {
 	// Decodes the token and checks if it is valid
@@ -52,6 +56,15 @@ func (auth *authenticationMiddleWare) CheckTokenCustomHeader(next echo.HandlerFu
 			token = c.Request().Header.Get(*auth.customHeaderName)
 		}
 
+		realm := auth.realm
+
+		if realm == "" {
+			value, ok := c.Get(KeyRealm).(string)
+			if ok {
+				realm = value
+			}
+		}
+
 		if token == "" {
 			token = c.Request().Header.Get("Authorization")
 		}
@@ -63,7 +76,7 @@ func (auth *authenticationMiddleWare) CheckTokenCustomHeader(next echo.HandlerFu
 			})
 		}
 
-		decodedToken, err := auth.stripBearerAndCheckToken(token, auth.realm)
+		decodedToken, err := auth.stripBearerAndCheckToken(token, realm)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
