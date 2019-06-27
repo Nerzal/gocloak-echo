@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	// KeyRealm is used as realm key constant
 	KeyRealm = "realm"
 )
 
