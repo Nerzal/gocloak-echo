@@ -5,6 +5,9 @@ Keycloak handler &amp; middleware for echo
 
 This project is still WiP and the interfaces might change pretty often
 
+Supported authentication flows:
+ - Direct Grant Flow
+
 Use this together with the keycloak client [gocloak](https://github.com/Nerzal/gocloak)
 
 ## Usage examples
@@ -28,7 +31,9 @@ type AuthenticationHandler interface {
 // AuthenticationMiddleWare is used to validate the JWT
 type AuthenticationMiddleWare interface {
 	CheckToken(next echo.HandlerFunc) echo.HandlerFunc
+    CheckTokenCustomHeader(next echo.HandlerFunc) echo.HandlerFunc
 	CheckScope(next echo.HandlerFunc) echo.HandlerFunc
+    DecodeAndValidateToken(next echo.HandlerFunc) echo.HandlerFunc
 }
 ```
 
