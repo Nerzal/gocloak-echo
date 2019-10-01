@@ -21,6 +21,7 @@ type authenticationHandler struct {
 
 // NewAuthenticationHandler instantiates a new AuthenticationHandler
 // Setting realm is optional
+//noinspection GoUnusedExportedFunction
 func NewAuthenticationHandler(gocloak gocloak.GoCloak, realm *string) AuthenticationHandler {
 	return &authenticationHandler{
 		gocloak: gocloak,
@@ -43,7 +44,7 @@ func (handler *authenticationHandler) AuthenticateClient(requestData Authenticat
 	}
 
 	if response.AccessToken == "" {
-		return nil, errors.New("Authentication failed")
+		return nil, errors.New("authentication failed")
 	}
 
 	return &JWT{
@@ -73,7 +74,7 @@ func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate)
 	}
 
 	if response.AccessToken == "" {
-		return nil, errors.New("Authentication failed")
+		return nil, errors.New("authentication failed")
 	}
 
 	return &JWT{
@@ -103,7 +104,7 @@ func (handler *authenticationHandler) RefreshToken(requestData Refresh) (*JWT, e
 	}
 
 	if response.AccessToken == "" {
-		return nil, errors.New("Authentication failed")
+		return nil, errors.New("authentication failed")
 	}
 
 	return &JWT{
