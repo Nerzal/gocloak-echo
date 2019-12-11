@@ -149,7 +149,7 @@ func (auth *directGrantMiddleware) CheckToken(next echo.HandlerFunc) echo.Handle
 			})
 		}
 
-		if !result.Active {
+		if result.Active != nil && !(*result.Active) {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
 				Message: "Invalid or expired Token",
