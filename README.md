@@ -15,7 +15,7 @@ Use this together with the keycloak client [gocloak](https://github.com/Nerzal/g
 * Install the package
 
 ```bash
-go get "github.com/Nerzal/gocloak/v4"
+go get "github.com/Nerzal/gocloak/v7"
 ```
 
 ```go
@@ -45,6 +45,7 @@ This middleware uses echo and gocloak. Choose the right version for you
 | ---------------- | ------------------- |
 | gockloak-echo/v3 | gocloak/v3, echo/v3 |
 | gockloak-echo/v4 | gocloak/v3, echo/v4 |
+| gockloak-echo/v7 | gocloak/v7, echo/v4 |
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FNerzal%2Fgocloak-echo.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FNerzal%2Fgocloak-echo?ref=badge_large)
