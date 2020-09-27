@@ -18,17 +18,17 @@ type AuthenticationHandler interface {
 type authenticationHandler struct {
 	gocloak gocloak.GoCloak
 	realm   *string
-	ctx context.Context
+	ctx     context.Context
 }
 
 // NewAuthenticationHandler instantiates a new AuthenticationHandler
 // Setting realm is optional
 //noinspection GoUnusedExportedFunction
-func NewAuthenticationHandler(ctx context.Context,gocloak gocloak.GoCloak, realm *string) AuthenticationHandler {
+func NewAuthenticationHandler(ctx context.Context, gocloak gocloak.GoCloak, realm *string) AuthenticationHandler {
 	return &authenticationHandler{
 		gocloak: gocloak,
 		realm:   realm,
-		ctx: ctx,
+		ctx:     ctx,
 	}
 }
 

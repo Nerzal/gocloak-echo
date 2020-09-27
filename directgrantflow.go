@@ -25,7 +25,7 @@ func NewDirectGrantMiddleware(ctx context.Context, gocloak gocloak.GoCloak, real
 		customHeaderName: customHeaderName,
 		clientID:         clientID,
 		clientSecret:     clientSecret,
-		ctx: ctx,
+		ctx:              ctx,
 	}
 }
 
@@ -36,7 +36,7 @@ type directGrantMiddleware struct {
 	clientSecret     string
 	allowedScope     string
 	customHeaderName *string
-	ctx context.Context
+	ctx              context.Context
 }
 
 // CheckTokenCustomHeader used to verify authorization tokens
