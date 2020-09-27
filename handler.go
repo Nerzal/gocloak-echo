@@ -1,10 +1,11 @@
 package gocloakecho
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
-	"github.com/Nerzal/gocloak/v4"
+	"github.com/Nerzal/gocloak/v7"
 )
 
 // AuthenticationHandler is used to authenticate with the api
@@ -17,15 +18,17 @@ type AuthenticationHandler interface {
 type authenticationHandler struct {
 	gocloak gocloak.GoCloak
 	realm   *string
+	ctx context.Context
 }
 
 // NewAuthenticationHandler instantiates a new AuthenticationHandler
 // Setting realm is optional
 //noinspection GoUnusedExportedFunction
-func NewAuthenticationHandler(gocloak gocloak.GoCloak, realm *string) AuthenticationHandler {
+func NewAuthenticationHandler(ctx context.Context,gocloak gocloak.GoCloak, realm *string) AuthenticationHandler {
 	return &authenticationHandler{
 		gocloak: gocloak,
 		realm:   realm,
+		ctx: ctx,
 	}
 }
 
@@ -35,7 +38,7 @@ func (handler *authenticationHandler) AuthenticateClient(requestData Authenticat
 		realm = *handler.realm
 	}
 
-	response, err := handler.gocloak.LoginClient(requestData.ClientID, requestData.ClientSecret, realm)
+	response, err := handler.gocloak.LoginClient(handler.ctx, requestData.ClientID, requestData.ClientSecret, realm)
 	if err != nil {
 		return nil, gocloak.APIError{
 			Code:    403,
@@ -65,7 +68,7 @@ func (handler *authenticationHandler) AuthenticateUser(requestData Authenticate)
 		realm = *handler.realm
 	}
 
-	response, err := handler.gocloak.Login(requestData.ClientID, requestData.ClientSecret, realm, *requestData.UserName, *requestData.Password)
+	response, err := handler.gocloak.Login(handler.ctx, requestData.ClientID, requestData.ClientSecret, realm, *requestData.UserName, *requestData.Password)
 	if err != nil {
 		return nil, gocloak.APIError{
 			Code:    http.StatusForbidden,
@@ -95,7 +98,7 @@ func (handler *authenticationHandler) RefreshToken(requestData Refresh) (*JWT, e
 		realm = *handler.realm
 	}
 
-	response, err := handler.gocloak.RefreshToken(requestData.RefreshToken, requestData.ClientID, requestData.ClientSecret, requestData.Realm)
+	response, err := handler.gocloak.RefreshToken(handler.ctx, requestData.RefreshToken, requestData.ClientID, requestData.ClientSecret, requestData.Realm)
 	if err != nil {
 		return nil, gocloak.APIError{
 			Code:    http.StatusForbidden,
