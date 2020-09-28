@@ -1,12 +1,13 @@
 package gocloakecho
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
-	"github.com/Nerzal/gocloak/v4"
-	"github.com/Nerzal/gocloak/v4/pkg/jwx"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/Nerzal/gocloak/v7"
+	"github.com/Nerzal/gocloak/v7/pkg/jwx"
+	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/labstack/echo/v4"
 )
 
@@ -16,7 +17,7 @@ import (
 // see https://www.keycloak.org/docs/latest/securing_apps/index.html#_resource_owner_password_credentials_flow and
 // https://tools.ietf.org/html/rfc6749#section-4.3 for more information about this flow
 //noinspection GoUnusedExportedFunction
-func NewDirectGrantMiddleware(gocloak gocloak.GoCloak, realm, clientID, clientSecret, allowedScope string, customHeaderName *string) AuthenticationMiddleWare {
+func NewDirectGrantMiddleware(ctx context.Context, gocloak gocloak.GoCloak, realm, clientID, clientSecret, allowedScope string, customHeaderName *string) AuthenticationMiddleWare {
 	return &directGrantMiddleware{
 		gocloak:          gocloak,
 		realm:            realm,
@@ -24,6 +25,7 @@ func NewDirectGrantMiddleware(gocloak gocloak.GoCloak, realm, clientID, clientSe
 		customHeaderName: customHeaderName,
 		clientID:         clientID,
 		clientSecret:     clientSecret,
+		ctx:              ctx,
 	}
 }
 
@@ -34,6 +36,7 @@ type directGrantMiddleware struct {
 	clientSecret     string
 	allowedScope     string
 	customHeaderName *string
+	ctx              context.Context
 }
 
 // CheckTokenCustomHeader used to verify authorization tokens
@@ -86,7 +89,7 @@ func (auth *directGrantMiddleware) CheckTokenCustomHeader(next echo.HandlerFunc)
 func (auth *directGrantMiddleware) stripBearerAndCheckToken(accessToken string, realm string) (*jwt.Token, error) {
 	accessToken = extractBearerToken(accessToken)
 
-	decodedToken, _, err := auth.gocloak.DecodeAccessToken(accessToken, realm)
+	decodedToken, _, err := auth.gocloak.DecodeAccessToken(auth.ctx, accessToken, realm, "")
 	return decodedToken, err
 }
 
@@ -141,7 +144,7 @@ func (auth *directGrantMiddleware) CheckToken(next echo.HandlerFunc) echo.Handle
 			})
 		}
 
-		result, err := auth.gocloak.RetrospectToken(token, auth.clientID, auth.clientSecret, auth.realm)
+		result, err := auth.gocloak.RetrospectToken(auth.ctx, token, auth.clientID, auth.clientSecret, auth.realm)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
@@ -184,7 +187,7 @@ func (auth *directGrantMiddleware) CheckScope(next echo.HandlerFunc) echo.Handle
 
 		token = extractBearerToken(token)
 		claims := &jwx.Claims{}
-		_, err := auth.gocloak.DecodeAccessTokenCustomClaims(token, auth.realm, claims)
+		_, err := auth.gocloak.DecodeAccessTokenCustomClaims(auth.ctx, token, auth.realm, "", claims)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, gocloak.APIError{
 				Code:    403,
