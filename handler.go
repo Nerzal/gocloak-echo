@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Nerzal/gocloak/v7"
+	"github.com/Nerzal/gocloak/v8"
 )
 
 // AuthenticationHandler is used to authenticate with the api

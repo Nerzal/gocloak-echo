@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Nerzal/gocloak/v7"
-	"github.com/Nerzal/gocloak/v7/pkg/jwx"
+	"github.com/Nerzal/gocloak/v8"
+	"github.com/Nerzal/gocloak/v8/pkg/jwx"
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/labstack/echo/v4"
 )
