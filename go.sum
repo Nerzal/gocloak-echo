@@ -1,5 +1,5 @@
-github.com/Nerzal/gocloak/v7 v7.5.0 h1:C43CStKw14gZatPLBdjKIrz1a6UrjaxP7OQTXYQ+RHc=
-github.com/Nerzal/gocloak/v7 v7.5.0/go.mod h1:tJ0yV6jds2dm1a5eYW7km/bt+2F3mqlU0e8Xis+diDQ=
+github.com/Nerzal/gocloak/v8 v8.1.1 h1:WgoHL/KAPtdIQf4fzBwGRmj+1sGraMS6sUdNMOoj+ic=
+github.com/Nerzal/gocloak/v8 v8.1.1/go.mod h1:Zzuv9uk+6drd8VrFT0ihxvIicMv7+umQKtKfnp5jCAs=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
@@ -8,8 +8,6 @@ github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1 h1:CaO/zOnF8VvUfEbhRatPcwKVWamvbY
 github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1/go.mod h1:+hnT3ywWDTAFrW5aE+u2Sa/wT555ZqwoCS+pk3p6ry4=
 github.com/go-resty/resty/v2 v2.3.0 h1:JOOeAvjSlapTT92p8xiS19Zxev1neGikoHsXJeOq8So=
 github.com/go-resty/resty/v2 v2.3.0/go.mod h1:UpN9CgLZNsv4e9XG50UU8xdI0F43UQ4HmxLBDwaroHU=
-github.com/labstack/echo/v4 v4.1.10 h1:/yhIpO50CBInUbE/nHJtGIyhBv0dJe2cDAYxc3V3uMo=
-github.com/labstack/echo/v4 v4.1.10/go.mod h1:i541M3Fj6f76NZtHSj7TXnyM8n2gaodfvfxNnFqi74g=
 github.com/labstack/echo/v4 v4.1.17 h1:PQIBaRplyRy3OjwILGkPg89JRtH2x5bssi59G2EL3fo=
 github.com/labstack/echo/v4 v4.1.17/go.mod h1:Tn2yRQL/UclUalpb5rPdXDevbkJ+lp/2svdyFBg6CHQ=
 github.com/labstack/gommon v0.3.0 h1:JEeO0bvc78PKdyHxloTKiF8BD5iGrH8T6MSeGvSgob0=
@@ -42,8 +40,6 @@ github.com/valyala/fasttemplate v1.0.1/go.mod h1:UQGH1tvbgY+Nz5t2n7tXsz52dQxojPU
 github.com/valyala/fasttemplate v1.2.1 h1:TVEnxayobAdVkhQfrfes2IzOB6o+z4roRkPF52WA1u4=
 github.com/valyala/fasttemplate v1.2.1/go.mod h1:KHLXt3tVN2HBp8eijSv/kGJopbvo7S+qRAEEKiv+SiQ=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
-golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 h1:HuIa8hRrWRSrqYzx1qI49NNxhdi2PrY7gxVSq1JjLDc=
-golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a h1:vclmkQCjlDX5OydZ9wv8rBCcS0QyQY66Mpf/7BZbInM=
 golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
